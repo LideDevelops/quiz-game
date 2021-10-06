@@ -1,3 +1,9 @@
-<div class="quiz-card" (click)="handleOnQuizCardClick()">
-  {{quizcardState.getQuizCardDisplayObservable() | async}}
+<div class="card" (click)="handleOnQuizCardClick()" [@cardFlip]="{value: quizcardState.getQuizCardStateObservable() | async, params: {curentRotation: curentRotation}}">
+  <div class="face front">
+    {{quizcardState.getQuizCardDisplayObservable() | async}}
+  </div>
+  <div class="face back">
+    {{quizcardState.getQuizCardDisplayObservable() | async}}
+  </div>
 </div>
+

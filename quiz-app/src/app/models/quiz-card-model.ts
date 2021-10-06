@@ -1,46 +1,52 @@
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import { QuizCardState } from "./quiz-card-state";
+import { map } from 'rxjs/operators';
 
 export class QuizCardStateModel {
   private model: QuizCardModel;
-  private displaySubject = new ReplaySubject<string>(1);
+  private modelSubject = new ReplaySubject<QuizCardModel>(1);
   constructor(model: QuizCardModel) {
     this.model = model;
   }
 
- public getQuizCardDisplayObservable(): Observable<string> {
-   return this.displaySubject.asObservable();
- }
+  public getQuizCardDisplayObservable(): Observable<string> {
+    return this.modelSubject.asObservable().pipe(map((x) => this.getQuizCardDisplay(x)));
+  }
+
+  public getQuizCardStateObservable(): Observable<QuizCardState> {
+    return this.modelSubject.asObservable().pipe(map((x) => x.state));
+  }
 
  public changeStateTo(state: QuizCardState) {
    this.model.state = state;
-   this.displaySubject.next(this.getQuizCardDisplay());
+   this.modelSubject.next(this.model);
  }
 
  public changeStateToNext() {
+  this.changeStateTo(this.getNextState())
+}
+
+private getNextState(): QuizCardState {
   switch (this.model.state) {
     case QuizCardState.pointDisplay:
-      this.changeStateTo(QuizCardState.question);
-      break;
+      return QuizCardState.question;
     case QuizCardState.question:
-      this.changeStateTo(QuizCardState.answer);
-      break;
+      return QuizCardState.answer;
     case QuizCardState.answer:
-      this.changeStateTo(QuizCardState.pointDisplay);
-      break;
+      return QuizCardState.pointDisplay;
     default:
-      this.changeStateTo(QuizCardState.pointDisplay);
+      return QuizCardState.pointDisplay;
   }
 }
 
-  private getQuizCardDisplay(): string {
-    switch (this.model.state) {
+  private getQuizCardDisplay(model: QuizCardModel): string {
+    switch (model.state) {
       case QuizCardState.pointDisplay:
-        return this.model.points.toString();
+        return model.points.toString();
       case QuizCardState.question:
-        return this.model.question;
+        return model.question;
       case QuizCardState.answer:
-        return this.model.answer;
+        return model.answer;
       default:
         return ""
     }

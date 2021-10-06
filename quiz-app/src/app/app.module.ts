@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { QuizeCardComponent } from './quize-card/quize-card.component';
 import { QuizFieldComponent } from './quiz-field/quiz-field.component';
 import { QuizTopicFieldComponent } from './quiz-topic-field/quiz-topic-field.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { QuizTopicFieldComponent } from './quiz-topic-field/quiz-topic-field.com
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
