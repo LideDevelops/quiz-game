@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { QuizCardState } from './models/quiz-card-state';
 import { QuizFieldModel } from './models/quiz-field-model';
 
 @Component({
@@ -14,7 +15,12 @@ export class AppComponent {
       {
         topicName: "Test1",
         quizCards: [
-          {question: "1+1=?"}
+          {
+            question: "1+1=?",
+            answer: "2",
+            points: 100,
+            state: QuizCardState.pointDisplay
+          }
         ]
       }
     ]

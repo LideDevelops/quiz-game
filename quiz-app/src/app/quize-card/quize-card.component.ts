@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { QuizCardModel } from '../models/quiz-card-model';
+import { Subject } from 'rxjs';
+import { QuizCardModel, QuizCardStateModel } from '../models/quiz-card-model';
+import { QuizCardState } from '../models/quiz-card-state';
 
 @Component({
   selector: 'app-quize-card',
@@ -9,12 +11,21 @@ import { QuizCardModel } from '../models/quiz-card-model';
 export class QuizeCardComponent implements OnInit {
 
   @Input() quizCard: QuizCardModel;
+  quizcardState: QuizCardStateModel;
 
   constructor() {
-    this.quizCard = {question: ""}
+    this.quizCard = {question: "", answer: "", points: 0, state: QuizCardState.question};
+    this.quizcardState = new QuizCardStateModel(this.quizCard);
    }
 
   ngOnInit(): void {
+    this.quizcardState = new QuizCardStateModel(this.quizCard);
+    this.quizcardState.changeStateTo(QuizCardState.pointDisplay);
+  }
+
+
+  handleOnQuizCardClick() {
+    this.quizcardState.changeStateToNext()
   }
 
 }
