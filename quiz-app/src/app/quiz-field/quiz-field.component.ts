@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { QuizTopicModel } from '../models';
 import { QuizFieldModel } from '../models/quiz-field-model';
+import { StateService } from '../services/game-state/state.service';
 @Component({
   selector: 'app-quiz-field',
   templateUrl: './quiz-field.component.html',
@@ -7,13 +9,20 @@ import { QuizFieldModel } from '../models/quiz-field-model';
 })
 export class QuizFieldComponent implements OnInit {
 
-  @Input() field: QuizFieldModel;
-
-  constructor() {
-    this.field = {topics: []}
+  field: QuizFieldModel;
+  topics: QuizTopicModel[];
+  constructor(private state: StateService) {
+    this.field = {Topics: []};
+    this.topics = [];
    }
 
   ngOnInit(): void {
+    this.state.quizFieldStateSubject.subscribe(x => {
+      this.field = x;
+      this.topics = x.Topics;
+      console.log("New field:");
+      console.log(x);
+    });
   }
 
 }

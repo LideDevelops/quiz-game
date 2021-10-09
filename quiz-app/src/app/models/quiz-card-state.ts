@@ -1,5 +1,5 @@
 export enum QuizCardState {
-  pointDisplay = "pointDisplay",
-  question = "question",
-  answer = "answer"
+  pointDisplay = 0,
+  question = 1,
+  answer = 2
 }

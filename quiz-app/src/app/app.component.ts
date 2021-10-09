@@ -11,15 +11,15 @@ export class AppComponent {
   title = 'quiz-app';
 
   demoData: QuizFieldModel = {
-    topics: [
+    Topics: [
       {
-        topicName: "Test1",
-        quizCards: [
+        TopicName: "Test1",
+        QuizCards: [
           {
-            question: "1+1=?",
-            answer: "2",
-            points: 100,
-            state: QuizCardState.pointDisplay
+            Question: "1+1=?",
+            Answer: "2",
+            Points: 100,
+            State: QuizCardState.answer
           }
         ]
       }

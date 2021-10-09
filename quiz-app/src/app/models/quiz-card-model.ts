@@ -14,11 +14,11 @@ export class QuizCardStateModel {
   }
 
   public getQuizCardStateObservable(): Observable<QuizCardState> {
-    return this.modelSubject.asObservable().pipe(map((x) => x.state));
+    return this.modelSubject.asObservable().pipe(map((x) => x.State));
   }
 
  public changeStateTo(state: QuizCardState) {
-   this.model.state = state;
+   this.model.State = state;
    this.modelSubject.next(this.model);
  }
 
@@ -27,7 +27,7 @@ export class QuizCardStateModel {
 }
 
 private getNextState(): QuizCardState {
-  switch (this.model.state) {
+  switch (this.model.State) {
     case QuizCardState.pointDisplay:
       return QuizCardState.question;
     case QuizCardState.question:
@@ -40,13 +40,13 @@ private getNextState(): QuizCardState {
 }
 
   private getQuizCardDisplay(model: QuizCardModel): string {
-    switch (model.state) {
+    switch (model.State) {
       case QuizCardState.pointDisplay:
-        return model.points.toString();
+        return model.Points.toString();
       case QuizCardState.question:
-        return model.question;
+        return model.Question;
       case QuizCardState.answer:
-        return model.answer;
+        return model.Answer;
       default:
         return ""
     }
@@ -54,8 +54,8 @@ private getNextState(): QuizCardState {
 }
 
 export interface QuizCardModel {
-  question: string;
-  answer: string;
-  points: number;
-  state: QuizCardState;
+  Question: string;
+  Answer: string;
+  Points: number;
+  State: QuizCardState;
 }
