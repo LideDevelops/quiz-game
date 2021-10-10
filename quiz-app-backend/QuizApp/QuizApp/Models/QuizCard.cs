@@ -6,5 +6,7 @@
         public string Answer { get; set; }
         public int Points { get; set; }
         public QuizCardState State { get; set; }
+
+        public long Id { get; set; }
     }
 }
