@@ -53,5 +53,29 @@ namespace QuizApp.Logic
             return !(topics.SelectMany(x => x.QuizCards).GroupBy(x => x.Id).Where(x => x.Count() > 1).Any() 
                 || topics.GroupBy(x => x.Id).Where(x => x.Count() > 1).Any());
         }
+
+        public void ChangeStateOfQuizCardToNext(int topicId, int cardId)
+        {
+            var card = currentQuizFieldState.Topics.Where(x => x.Id == topicId).SelectMany(x => x.QuizCards).Where(x => x.Id == cardId).FirstOrDefault();
+            if(card == null)
+            {
+                return;
+            }
+            switch(card.State)
+            {
+                case QuizCardState.answer:
+                    card.State = QuizCardState.pointDisplay;
+                    break;
+                case QuizCardState.pointDisplay:
+                    card.State = QuizCardState.question;
+                    break;
+                case QuizCardState.question:
+                    card.State = QuizCardState.answer;
+                    break;
+                default:
+                    card.State = QuizCardState.pointDisplay;
+                    break;
+            }
+        }
     }
 }

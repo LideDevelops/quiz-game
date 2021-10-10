@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QuizApp.Logic;
 using QuizApp.Models;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,12 @@ namespace QuizApp.Controller
     {
         private static Subject<QuizFieldState> currentQuiz = new Subject<QuizFieldState>();
         private static ICollection<WebSocket> sockets = new List<WebSocket>();
+        private readonly FieldLogic fieldLogic;
+
+        public RoomController(FieldLogic fieldLogic)
+        {
+            this.fieldLogic = fieldLogic;
+        }
 
         [HttpGet("state")]
         public async Task Get()
@@ -58,6 +65,18 @@ namespace QuizApp.Controller
         private QuizFieldState ParseWebSocketEntry(string json)
         {
             return JsonConvert.DeserializeObject<QuizFieldState>(json);
+        }
+
+        [HttpPost("setup")]
+        public void SetupField([FromBody] IEnumerable<QuizFieldTopic> topics)
+        {
+            fieldLogic.SetupNewQuizField(topics);   
+        }
+
+        [HttpGet("currentField")]
+        public IActionResult GetCurrentQuizField()
+        {
+            return Ok(fieldLogic.GetCurrentQuizField());
         }
     }
 }
