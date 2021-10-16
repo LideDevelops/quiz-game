@@ -11,7 +11,7 @@ export class QuizTopicFieldComponent implements OnInit {
   @Input() topic: QuizTopicModel;
 
   constructor() {
-    this.topic = { TopicName: "", QuizCards: []}
+    this.topic = { TopicName: "", QuizCards: [], Id: 0}
   }
 
   ngOnInit(): void {

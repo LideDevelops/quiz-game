@@ -1,4 +1,4 @@
 <div>
   <div>{{topic.TopicName}}</div>
-  <app-quize-card *ngFor="let quizCard of topic.QuizCards" [quizCard]="quizCard"></app-quize-card>
+  <app-quize-card *ngFor="let quizCard of topic.QuizCards" [quizCard]="quizCard" [topicId]="topic.Id"></app-quize-card>
 </div>

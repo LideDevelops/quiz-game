@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { Subject } from 'rxjs';
 import { QuizCardModel, QuizCardStateModel } from '../models/quiz-card-model';
 import { QuizCardState } from '../models/quiz-card-state';
+import { StateService } from '../services/game-state/state.service';
 
 @Component({
   selector: 'app-quize-card',
@@ -33,6 +34,8 @@ import { QuizCardState } from '../models/quiz-card-state';
 })
 export class QuizeCardComponent implements OnInit  {
 
+  @Input() topicId: number | any;
+
   private _quizCard: QuizCardModel | any;
   public get quizCard(): QuizCardModel {
     return this._quizCard;
@@ -45,7 +48,7 @@ export class QuizeCardComponent implements OnInit  {
   quizcardState: QuizCardStateModel;
   curentRotation = 0;
 
-  constructor() {
+  constructor(private stateService: StateService) {
     this._quizCard = null;
     this.quizcardState = new QuizCardStateModel(this.quizCard);
    }
@@ -56,7 +59,7 @@ export class QuizeCardComponent implements OnInit  {
 
   handleOnQuizCardClick() {
     this.curentRotation = (this.curentRotation + 180) % 360;
-    this.quizcardState.changeStateToNext()
+    this.stateService.updateQuizCardState(this.topicId, this.quizCard.Id)
   }
 
 }

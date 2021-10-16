@@ -7,6 +7,7 @@ import { QuizeCardComponent } from './quize-card/quize-card.component';
 import { QuizFieldComponent } from './quiz-field/quiz-field.component';
 import { QuizTopicFieldComponent } from './quiz-topic-field/quiz-topic-field.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {HttpClientModule} from '@angular/common/http'
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

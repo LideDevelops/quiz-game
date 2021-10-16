@@ -19,9 +19,11 @@ export class AppComponent {
             Question: "1+1=?",
             Answer: "2",
             Points: 100,
-            State: QuizCardState.answer
+            State: QuizCardState.answer,
+            Id: 0
           }
-        ]
+        ],
+        Id: 0
       }
     ]
   }

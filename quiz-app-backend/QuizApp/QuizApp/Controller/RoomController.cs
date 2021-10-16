@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QuizApp.Extension;
 using QuizApp.Logic;
 using QuizApp.Models;
 using System;
@@ -19,11 +20,10 @@ namespace QuizApp.Controller
     [Route("[controller]")]
     public class RoomController : ControllerBase
     {
-        private static Subject<QuizFieldState> currentQuiz = new Subject<QuizFieldState>();
         private static ICollection<WebSocket> sockets = new List<WebSocket>();
-        private readonly FieldLogic fieldLogic;
+        private readonly IFieldLogic fieldLogic;
 
-        public RoomController(FieldLogic fieldLogic)
+        public RoomController(IFieldLogic fieldLogic)
         {
             this.fieldLogic = fieldLogic;
         }
@@ -35,9 +35,9 @@ namespace QuizApp.Controller
             {
                 WebSocket webSocket = await
                                    HttpContext.WebSockets.AcceptWebSocketAsync();
-                currentQuiz.Subscribe(x => webSocket.SendAsync(new ArraySegment<byte>(JsonConvert.SerializeObject(x).Select(y => (byte)y).ToArray()), WebSocketMessageType.Text, true, default));
                 sockets.Add(webSocket);
-                await HandleWebSocket(HttpContext, webSocket);
+                fieldLogic.OnQuizCardUpdate().Subscribe(x => webSocket.SendFieldStateChange(x));
+                await HandleStateChangeWebSocket(HttpContext, webSocket);
             }
             else
             {
@@ -45,16 +45,28 @@ namespace QuizApp.Controller
             }
         }
 
-        private async Task HandleWebSocket(HttpContext context, WebSocket webSocket)
+
+        //TODO: This should be its own document
+        //Setup for state change:
+        //Beginning with higest:
+        //32 Bit Topic ID
+        //32 Bit Card ID
+
+        private async Task HandleStateChangeWebSocket(HttpContext context, WebSocket webSocket)
         {
-            var buffer = new byte[1024 * 4];
+            var buffer = new byte[8];
             WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             while (!result.CloseStatus.HasValue)
             {
-                currentQuiz.OnNext(ParseWebSocketEntry(new string(buffer.Select(x => (char)x).ToArray())));
-
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
-
+                var fullBuffer = buffer.Take(result.Count);
+                while(!result.EndOfMessage)
+                {
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    fullBuffer = fullBuffer.Concat(buffer.Take(result.Count));
+                }
+                var cardId = BitConverter.ToInt32(fullBuffer.TakeLast(4).ToArray());
+                var topicId = BitConverter.ToInt32(fullBuffer.SkipLast(4).ToArray());
+                fieldLogic.ChangeStateOfQuizCardToNext(topicId, cardId);
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
@@ -70,7 +82,7 @@ namespace QuizApp.Controller
         [HttpPost("setup")]
         public void SetupField([FromBody] IEnumerable<QuizFieldTopic> topics)
         {
-            fieldLogic.SetupNewQuizField(topics);   
+            fieldLogic.SetupNewQuizField(topics);
         }
 
         [HttpGet("currentField")]

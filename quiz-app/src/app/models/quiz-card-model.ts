@@ -58,4 +58,5 @@ export interface QuizCardModel {
   Answer: string;
   Points: number;
   State: QuizCardState;
+  Id: number;
 }
