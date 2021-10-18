@@ -20,8 +20,8 @@ namespace QuizApp.Controller
     [Route("[controller]")]
     public class RoomController : ControllerBase
     {
-        private static ICollection<WebSocket> sockets = new List<WebSocket>();
         private readonly IFieldLogic fieldLogic;
+        private static ICollection<IDisposable> quizCardUpdateList = new List<IDisposable>();
 
         public RoomController(IFieldLogic fieldLogic)
         {
@@ -35,8 +35,10 @@ namespace QuizApp.Controller
             {
                 WebSocket webSocket = await
                                    HttpContext.WebSockets.AcceptWebSocketAsync();
-                sockets.Add(webSocket);
-                fieldLogic.OnQuizCardUpdate().Subscribe(x => webSocket.SendFieldStateChange(x));
+                quizCardUpdateList.Add(fieldLogic.OnQuizCardUpdate().Subscribe(x =>
+                {
+                    BackgroundSocketProcessor.AddNewStateChangeToQueue(x);
+                }));
                 await HandleStateChangeWebSocket(HttpContext, webSocket);
             }
             else
@@ -44,7 +46,6 @@ namespace QuizApp.Controller
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             }
         }
-
 
         //TODO: This should be its own document
         //Setup for state change:
@@ -54,12 +55,17 @@ namespace QuizApp.Controller
 
         private async Task HandleStateChangeWebSocket(HttpContext context, WebSocket webSocket)
         {
+            var socketFinishedTcs = new TaskCompletionSource<object>();
+
+            BackgroundSocketProcessor.AddSocket(webSocket, socketFinishedTcs);
+
+            //     await socketFinishedTcs.Task;
             var buffer = new byte[8];
             WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             while (!result.CloseStatus.HasValue)
             {
                 var fullBuffer = buffer.Take(result.Count);
-                while(!result.EndOfMessage)
+                while (!result.EndOfMessage)
                 {
                     result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     fullBuffer = fullBuffer.Concat(buffer.Take(result.Count));
@@ -70,7 +76,6 @@ namespace QuizApp.Controller
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-            sockets.Remove(webSocket);
             webSocket.Dispose();
         }
 

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuizApp.Logic;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace QuizApp
 {
@@ -25,6 +27,8 @@ namespace QuizApp
                                       builder.AllowAnyOrigin();
                                   });
             });
+
+            services.AddHostedService<BackgroundSocketProcessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

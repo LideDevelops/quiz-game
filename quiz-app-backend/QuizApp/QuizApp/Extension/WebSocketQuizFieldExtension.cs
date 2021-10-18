@@ -8,12 +8,11 @@ namespace QuizApp.Extension
 {
     public static class WebSocketQuizFieldExtension
     {
-
-        public static void SendFieldStateChange(this WebSocket socket, Tuple<int, int, QuizCardState> x)
+        public static async Task SendFieldStateChangeAsync(this WebSocket socket, Tuple<int, int, QuizCardState> x)
         {
             var buffer = BitConverter.GetBytes(x.Item1).Concat(BitConverter.GetBytes(x.Item2)).Concat(BitConverter.GetBytes(((int)x.Item3)));
             var segment = new ArraySegment<byte>(buffer.ToArray());
-            socket.SendAsync(segment, WebSocketMessageType.Binary, true, default).RunSynchronously();
+            await socket.SendAsync(segment, WebSocketMessageType.Binary, true, default);
         }
     }
 }
