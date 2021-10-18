@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, ReplaySubject } from 'rxjs';
 import { delay, filter, map, retryWhen, switchMap } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { webSocket, WebSocketSubject, WebSocketSubjectConfig } from 'rxjs/webSocket';
 import { QuizCardModel, QuizCardStateModel, QuizFieldModel } from 'src/app/models';
 import { QuizCardState } from 'src/app/models/quiz-card-state';
 
@@ -24,11 +24,11 @@ export class StateService {
     this._quizFieldState.subscribe(x => this._currentQuizField = x);
     this._quizFieldState.next({Topics: []});
     this.getCurrentState();
-    this.connect();
+    this.connect().subscribe();
     if(this._connection$) {
       this._connection$.subscribe(x => {
-        console.log(x);
         let arr = new Int32Array(x);
+        console.log(arr);
         let newState = this._currentQuizField;
         newState.Topics
         .filter(x => x.Id === arr[0])
@@ -58,7 +58,12 @@ export class StateService {
         if (this._connection$) {
           return this._connection$;
         } else {
-          this._connection$ = webSocket(wsUrl);
+
+          this._connection$ = webSocket({
+            url: wsUrl,
+        //Apply any transformation of your choice.
+            deserializer: ({data}) => data
+        });
           return this._connection$;
         }
       }),
